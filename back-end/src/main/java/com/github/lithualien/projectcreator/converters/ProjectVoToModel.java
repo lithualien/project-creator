@@ -19,6 +19,8 @@ public class ProjectVoToModel implements Converter<ProjectVO, Project> {
         project.setName(projectVO.getProjectName());
         project.setGroupAmount(projectVO.getGroupAmount());
         project.setGroups(convertGroupVoToModel(projectVO.getGroupVoSet()));
+        project.setGroupAmount(projectVO.getGroupAmount());
+        project.setStudentsPerGroup(projectVO.getStudentsPerGroup());
 
         return project;
     }

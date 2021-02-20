@@ -18,18 +18,22 @@ public class Project extends BaseModel {
 
     private String name;
 
+    @Column(name = "student_amount_per_group")
+    private Integer studentsPerGroup;
+
     @Column(name = "group_amount")
     private Integer groupAmount;
 
     @ManyToMany
-    @JoinTable(name = "group_projects",
+    @JoinTable(name = "project_group_projects",
             joinColumns = @JoinColumn(name = "project_id"),
-            inverseJoinColumns = @JoinColumn(name = "group_id"))
+            inverseJoinColumns = @JoinColumn(name = "project_group_id"))
     private Set<Group> groups = new HashSet<>();
 
-    public Project(Long id, String name, Integer groupAmount) {
+    public Project(Long id, String name, Integer studentsPerGroup, Integer groupAmount) {
         super(id);
         this.name = name;
+        this.studentsPerGroup = studentsPerGroup;
         this.groupAmount = groupAmount;
     }
 

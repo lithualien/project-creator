@@ -19,6 +19,8 @@ public class ProjectModelToVo implements Converter<Project, ProjectVO> {
         projectVO.setProjectName(project.getName());
         projectVO.setGroupAmount(project.getGroupAmount());
         projectVO.setGroupVoSet(convertGroupModelToVo(project.getGroups()));
+        projectVO.setGroupAmount(project.getGroupAmount());
+        projectVO.setStudentsPerGroup(project.getStudentsPerGroup());
 
         return projectVO;
     }
