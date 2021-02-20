@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -12,16 +15,14 @@ import lombok.Setter;
 public class ProjectVO extends BaseVO {
 
     private String projectName;
-    private String groupAmount;
-    private String studentAmount;
-    private GroupVO groupVO;
+    private Integer groupAmount;
+    private Set<GroupVO> groupVoSet = new HashSet<>();
 
-    public ProjectVO(Long id, String projectName, String groupAmount, String studentAmount, GroupVO groupVO) {
+    public ProjectVO(Long id, String projectName, Integer groupAmount, Set<GroupVO> groupVoSet) {
         super(id);
         this.projectName = projectName;
         this.groupAmount = groupAmount;
-        this.studentAmount = studentAmount;
-        this.groupVO = groupVO;
+        this.groupVoSet = groupVoSet;
     }
 
 }

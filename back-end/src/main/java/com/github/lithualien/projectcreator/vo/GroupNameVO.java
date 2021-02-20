@@ -9,15 +9,13 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class StudentVO extends BaseVO {
+public class GroupNameVO extends BaseVO {
 
-    private String firstName;
-    private String lastName;
+    private String groupName;
 
-    public StudentVO(Long id, String firstName, String lastName) {
+    public GroupNameVO(Long id, String groupName) {
         super(id);
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.groupName = groupName;
     }
 
 }
