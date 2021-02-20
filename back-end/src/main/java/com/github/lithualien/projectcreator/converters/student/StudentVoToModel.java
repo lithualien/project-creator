@@ -1,4 +1,4 @@
-package com.github.lithualien.projectcreator.converters;
+package com.github.lithualien.projectcreator.converters.student;
 
 import com.github.lithualien.projectcreator.models.Student;
 import com.github.lithualien.projectcreator.vo.StudentVO;

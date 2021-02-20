@@ -16,7 +16,8 @@ import java.util.Set;
 @Entity(name = "projects")
 public class Project extends BaseModel {
 
-    private String name;
+    @Column(name = "name")
+    private String projectName;
 
     @Column(name = "student_amount_per_group")
     private Integer studentsPerGroup;
@@ -30,9 +31,9 @@ public class Project extends BaseModel {
             inverseJoinColumns = @JoinColumn(name = "project_group_id"))
     private Set<Group> groups = new HashSet<>();
 
-    public Project(Long id, String name, Integer studentsPerGroup, Integer groupAmount) {
+    public Project(Long id, String projectName, Integer studentsPerGroup, Integer groupAmount) {
         super(id);
-        this.name = name;
+        this.projectName = projectName;
         this.studentsPerGroup = studentsPerGroup;
         this.groupAmount = groupAmount;
     }

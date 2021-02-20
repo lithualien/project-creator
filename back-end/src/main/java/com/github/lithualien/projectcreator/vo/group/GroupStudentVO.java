@@ -1,6 +1,7 @@
-package com.github.lithualien.projectcreator.vo;
+package com.github.lithualien.projectcreator.vo.group;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.lithualien.projectcreator.vo.StudentVO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,16 +13,13 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GroupVO extends BaseVO {
+public class GroupStudentVO extends GroupVO {
 
     @JsonProperty("students")
     private Set<StudentVO> studentVoSet = new HashSet<>();
 
-    private String groupName;
-
-    public GroupVO(Long id, String groupName, Set<StudentVO> studentVoSet) {
-        super(id);
-        this.groupName = groupName;
+    public GroupStudentVO(Long id, String groupName, Set<StudentVO> studentVoSet) {
+        super(id, groupName);
         this.studentVoSet = studentVoSet;
     }
 
