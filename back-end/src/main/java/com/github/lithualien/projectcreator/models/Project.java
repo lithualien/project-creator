@@ -13,7 +13,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
+@Entity(name = "projects")
 public class Project extends BaseModel {
 
     private String name;
@@ -21,20 +21,16 @@ public class Project extends BaseModel {
     @Column(name = "group_amount")
     private Integer groupAmount;
 
-    @Column(name = "student_amount_per_group")
-    private Integer studentAmount;
-
-    @ManyToMany()
-    @JoinTable(name = "project_students",
+    @ManyToMany
+    @JoinTable(name = "group_projects",
             joinColumns = @JoinColumn(name = "project_id"),
-            inverseJoinColumns = @JoinColumn(name = "student_id"))
-    private Set<Student> students = new HashSet<>();
+            inverseJoinColumns = @JoinColumn(name = "group_id"))
+    private Set<Group> groups = new HashSet<>();
 
-    public Project(Long id, String name, Integer groupAmount, Integer studentAmount) {
+    public Project(Long id, String name, Integer groupAmount) {
         super(id);
         this.name = name;
         this.groupAmount = groupAmount;
-        this.studentAmount = studentAmount;
     }
 
 
