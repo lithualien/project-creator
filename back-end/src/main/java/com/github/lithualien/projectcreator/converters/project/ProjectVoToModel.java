@@ -3,7 +3,9 @@ package com.github.lithualien.projectcreator.converters.project;
 import com.github.lithualien.projectcreator.models.Project;
 import com.github.lithualien.projectcreator.vo.project.ProjectVO;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ProjectVoToModel implements Converter<ProjectVO, Project> {
 
     @Override

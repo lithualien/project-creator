@@ -6,10 +6,12 @@ import com.github.lithualien.projectcreator.models.Project;
 import com.github.lithualien.projectcreator.vo.group.GroupStudentVO;
 import com.github.lithualien.projectcreator.vo.project.ProjectGroupStudentVO;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.stereotype.Component;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Component
 public class ProjectModelToProjectGroupStudentVo implements Converter<Project, ProjectGroupStudentVO> {
 
     @Override

@@ -31,7 +31,7 @@ public class DataSourceConfig {
         if(environment.getProperty(propertyName) != null) {
             return environment.getProperty(propertyName);
         } else {
-            log.error("Could not read datasource.driver-class-name property.");
+            log.error("Could not read" + propertyName + " property.");
             return "";
         }
     }

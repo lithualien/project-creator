@@ -1,8 +1,5 @@
 package com.github.lithualien.projectcreator.services.impl;
 
-import com.github.lithualien.projectcreator.converters.project.ProjectModelToProjectGroupStudentVo;
-import com.github.lithualien.projectcreator.converters.project.ProjectGroupStudentVoToModel;
-import com.github.lithualien.projectcreator.converters.project.ProjectVoToModel;
 import com.github.lithualien.projectcreator.exceptions.ResourceAlreadyExistsException;
 import com.github.lithualien.projectcreator.exceptions.ResourceNotFoundException;
 import com.github.lithualien.projectcreator.models.Project;
@@ -25,10 +22,11 @@ public class ProjectServiceImpl implements ProjectService {
     private final Converter<Project, ProjectGroupStudentVO> modelToVo;
     private final Converter<ProjectVO, Project> projectVoToModel;
 
-    public ProjectServiceImpl(ProjectRepository projectRepository) {
+    public ProjectServiceImpl(ProjectRepository projectRepository, Converter<Project, ProjectGroupStudentVO> modelToVo,
+                              Converter<ProjectVO, Project> projectVoToModel) {
         this.projectRepository = projectRepository;
-        this.modelToVo = new ProjectModelToProjectGroupStudentVo();
-        this.projectVoToModel = new ProjectVoToModel();
+        this.modelToVo = modelToVo;
+        this.projectVoToModel = projectVoToModel;
     }
 
     @Override
@@ -45,17 +43,15 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ProjectVO save(ProjectVO projectVO) {
         checkIfProjectExists(projectVO.getProjectName());
-        projectVO.setId(null);
-        Project project = projectVoToModel.convert(projectVO);
-        return saveOrUpdate(project);
+        return saveOrUpdate(null, projectVO);
     }
 
     @Override
     public ProjectVO update(Long id, ProjectVO projectVO) {
-        getProjectById(id);
-        projectVO.setId(id);
-        Project project = projectVoToModel.convert(projectVO);
-        return saveOrUpdate(project);
+        if(!projectRepository.existsProjectById(id)) {
+            throw new ResourceNotFoundException("Project with id = " + id + " was not found!");
+        }
+        return saveOrUpdate(id, projectVO);
     }
 
     @Override
@@ -93,12 +89,14 @@ public class ProjectServiceImpl implements ProjectService {
         }
     }
 
-    private ProjectVO saveOrUpdate(Project project) {
+    private ProjectVO saveOrUpdate(Long id, ProjectVO projectVO) {
+        projectVO.setId(id);
+        Project project = projectVoToModel.convert(projectVO);
         if(project != null) {
             Project updatedProject = projectRepository.save(project);
             return modelToVo.convert(updatedProject);
         } else {
-            log.error(getClass() + ", save() method, project after conversion was null.");
+            log.error(getClass() + ", saveOrUpdate() method, project after conversion was null.");
             return null;
         }
     }
