@@ -2,15 +2,19 @@ package com.github.lithualien.projectcreator.services.impl;
 
 import com.github.lithualien.projectcreator.exceptions.ResourceAlreadyExistsException;
 import com.github.lithualien.projectcreator.exceptions.ResourceNotFoundException;
+import com.github.lithualien.projectcreator.models.Group;
 import com.github.lithualien.projectcreator.models.Project;
 import com.github.lithualien.projectcreator.repositories.ProjectRepository;
+import com.github.lithualien.projectcreator.services.GroupService;
 import com.github.lithualien.projectcreator.services.ProjectService;
 import com.github.lithualien.projectcreator.vo.project.ProjectGroupStudentVO;
 import com.github.lithualien.projectcreator.vo.project.ProjectVO;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Service;
-import java.util.Set;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -21,17 +25,19 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final Converter<Project, ProjectGroupStudentVO> modelToVo;
     private final Converter<ProjectVO, Project> projectVoToModel;
+    private final GroupService groupService;
 
     public ProjectServiceImpl(ProjectRepository projectRepository, Converter<Project, ProjectGroupStudentVO> modelToVo,
-                              Converter<ProjectVO, Project> projectVoToModel) {
+                              Converter<ProjectVO, Project> projectVoToModel, GroupService groupService) {
         this.projectRepository = projectRepository;
         this.modelToVo = modelToVo;
         this.projectVoToModel = projectVoToModel;
+        this.groupService = groupService;
     }
 
     @Override
-    public Set<ProjectGroupStudentVO> all() {
-        Set<Project> projectGroupStudentVO = getProjectSet(projectRepository.findAll());
+    public List<ProjectGroupStudentVO> all() {
+        List<Project> projectGroupStudentVO = getProjectList(projectRepository.findAll());
         return convertModelToVo(projectGroupStudentVO);
     }
 
@@ -40,18 +46,40 @@ public class ProjectServiceImpl implements ProjectService {
         return modelToVo.convert(getProjectById(id));
     }
 
+    // todo initialize students with null and do the same with removing and adding
+    @Transactional
     @Override
-    public ProjectVO save(ProjectVO projectVO) {
+    public ProjectGroupStudentVO save(ProjectVO projectVO) {
         checkIfProjectExists(projectVO.getProjectName());
-        return saveOrUpdate(null, projectVO);
+        projectVO.setId(null);
+
+        Project project = projectVoToModel.convert(projectVO);
+        Project savedProject = saveOrUpdate(project);
+
+        if(savedProject != null) {
+            savedProject.setGroups(groupService.initializeGroupList(savedProject));
+            return modelToVo.convert(savedProject);
+        }
+        return null;
     }
 
+    // todo initialize students with null and do the same with removing and adding
+    @Transactional
     @Override
     public ProjectVO update(Long id, ProjectVO projectVO) {
-        if(!projectRepository.existsProjectById(id)) {
-            throw new ResourceNotFoundException("Project with id = " + id + " was not found!");
+        checkIfProjectExists(id);
+        projectVO.setId(id);
+        Project oldProject = getProjectById(id);
+        Project project = projectVoToModel.convert(projectVO);
+        List<Group> groups = groupService.createOrDeleteGroups(oldProject, projectVO.getGroupAmount());
+
+        if(project != null) {
+            Project updatedProject = saveOrUpdate(project);
+            updatedProject.setGroups(groups);
+            return modelToVo.convert(updatedProject);
         }
-        return saveOrUpdate(id, projectVO);
+
+        return null;
     }
 
     @Override
@@ -60,17 +88,17 @@ public class ProjectServiceImpl implements ProjectService {
         projectRepository.delete(project);
     }
 
-    private Set<Project> getProjectSet(Iterable<Project> projectIterator) {
+    private List<Project> getProjectList(Iterable<Project> projectIterator) {
         return StreamSupport
                 .stream(projectIterator.spliterator(), false)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
-    private Set<ProjectGroupStudentVO> convertModelToVo(Set<Project> projectSet) {
-        return projectSet
+    private List<ProjectGroupStudentVO> convertModelToVo(List<Project> projectList) {
+        return projectList
                 .stream()
                 .map(modelToVo::convert)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
     private Project getProjectById(Long id) {
@@ -89,12 +117,15 @@ public class ProjectServiceImpl implements ProjectService {
         }
     }
 
-    private ProjectVO saveOrUpdate(Long id, ProjectVO projectVO) {
-        projectVO.setId(id);
-        Project project = projectVoToModel.convert(projectVO);
+    private void checkIfProjectExists(Long id) {
+        if(!projectRepository.existsProjectById(id)) {
+            throw new ResourceNotFoundException("Project with id = " + id + " was not found!");
+        }
+    }
+
+    private Project saveOrUpdate(Project project) {
         if(project != null) {
-            Project updatedProject = projectRepository.save(project);
-            return modelToVo.convert(updatedProject);
+            return projectRepository.save(project);
         } else {
             log.error(getClass() + ", saveOrUpdate() method, project after conversion was null.");
             return null;

@@ -1,10 +1,10 @@
 package com.github.lithualien.projectcreator.services;
 
-import java.util.Set;
+import java.util.List;
 
 public interface CrudService<T> {
 
-    Set<? extends T> all();
+    List<? extends T> all();
     T findById(Long id);
     T save(T t);
     T update(Long id, T t);

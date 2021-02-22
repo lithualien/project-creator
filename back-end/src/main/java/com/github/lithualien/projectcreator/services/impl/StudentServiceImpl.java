@@ -10,7 +10,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -30,9 +30,9 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public Set<StudentVO> all() {
-        Set<Student> studentSet = getStudentSet(studentRepository.findAll());
-        return getStudentVoSet(studentSet);
+    public List<StudentVO> all() {
+        List<Student> studentList = getStudentList(studentRepository.findAll());
+        return getStudentVoList(studentList);
     }
 
     @Override
@@ -49,10 +49,7 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public StudentVO update(Long id, StudentVO studentVO) {
-        if(!studentRepository.existsStudentById(id)) {
-            throw new ResourceNotFoundException("Student with id = " + id + " was not found!");
-        }
-
+        checkIfStudentExists(id);
         return saveOrUpdate(id, studentVO);
     }
 
@@ -62,17 +59,17 @@ public class StudentServiceImpl implements StudentService {
         studentRepository.delete(student);
     }
 
-    private Set<Student> getStudentSet(Iterable<Student> students) {
+    private List<Student> getStudentList(Iterable<Student> students) {
         return StreamSupport
                 .stream(students.spliterator(), false)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
-    private Set<StudentVO> getStudentVoSet(Set<Student> studentSet) {
-        return studentSet
+    private List<StudentVO> getStudentVoList(List<Student> studentList) {
+        return studentList
                 .stream()
                 .map(modelToVo::convert)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
     private Student getStudentById(Long id) {
@@ -88,6 +85,12 @@ public class StudentServiceImpl implements StudentService {
         if(studentRepository.existsStudentByFirstNameAndLastName(firstName, lastName)) {
             log.error("Student " + firstName + " " + lastName + " already exists.");
             throw new ResourceAlreadyExistsException("Student " + firstName + " " + lastName + " already exists.");
+        }
+    }
+
+    private void checkIfStudentExists(Long id) {
+        if(!studentRepository.existsStudentById(id)) {
+            throw new ResourceNotFoundException("Student with id = " + id + " was not found!");
         }
     }
 

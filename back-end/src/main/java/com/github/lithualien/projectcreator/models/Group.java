@@ -1,13 +1,10 @@
 package com.github.lithualien.projectcreator.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -16,16 +13,29 @@ import java.util.Set;
 @Entity(name = "project_groups")
 public class Group extends BaseModel {
 
-    private String groupName;
+    @ManyToOne()
+    @JoinColumn(name = "project_group_name_id")
+    private GroupName groupName;
 
-    @ManyToMany
+    @ManyToOne
+    @JoinColumn(name = "project_id")
+    private Project project;
+
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "project_group_students",
             joinColumns = @JoinColumn(name = "project_group_id"),
             inverseJoinColumns = @JoinColumn(name = "student_id"))
-    private Set<Student> students = new HashSet<>();
+    private List<Student> students = new ArrayList<>();
 
-    public Group(Long id, String groupName) {
+    public Group(Long id) {
         super(id);
-        this.groupName = groupName;
+    }
+
+    @Override
+    public String toString() {
+        return "Group{" +
+                "id=" + id +
+                ", groupName=" + groupName +
+                '}';
     }
 }

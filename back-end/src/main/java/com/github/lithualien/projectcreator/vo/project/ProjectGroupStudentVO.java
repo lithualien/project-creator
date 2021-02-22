@@ -7,8 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,10 +17,10 @@ import java.util.Set;
 public class ProjectGroupStudentVO extends ProjectVO {
 
     @JsonProperty("groups")
-    private Set<GroupStudentVO> groupStudentVoSet = new HashSet<>();
+    private List<GroupStudentVO> groupStudentVoSet = new ArrayList<>();
 
     public ProjectGroupStudentVO(Long id, String projectName, Integer groupAmount,
-                                 Integer studentsPerGroup, Set<GroupStudentVO> groupStudentVoSet) {
+                                 Integer studentsPerGroup, List<GroupStudentVO> groupStudentVoSet) {
         super(id, projectName, groupAmount, studentsPerGroup);
         this.groupStudentVoSet = groupStudentVoSet;
     }
