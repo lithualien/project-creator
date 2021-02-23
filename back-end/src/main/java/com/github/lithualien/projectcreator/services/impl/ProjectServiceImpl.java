@@ -46,7 +46,6 @@ public class ProjectServiceImpl implements ProjectService {
         return modelToVo.convert(getProjectById(id));
     }
 
-    // todo initialize students with null and do the same with removing and adding
     @Transactional
     @Override
     public ProjectGroupStudentVO save(ProjectVO projectVO) {
@@ -63,7 +62,6 @@ public class ProjectServiceImpl implements ProjectService {
         return null;
     }
 
-    // todo initialize students with null and do the same with removing and adding
     @Transactional
     @Override
     public ProjectVO update(Long id, ProjectVO projectVO) {
@@ -72,6 +70,8 @@ public class ProjectServiceImpl implements ProjectService {
         Project oldProject = getProjectById(id);
         Project project = projectVoToModel.convert(projectVO);
         List<Group> groups = groupService.createOrDeleteGroups(oldProject, projectVO.getGroupAmount());
+        groupService.resetStudentsOnGroup(groups, oldProject.getStudentsPerGroup(),
+                projectVO.getStudentsPerGroup());
 
         if(project != null) {
             Project updatedProject = saveOrUpdate(project);

@@ -1,6 +1,7 @@
 package com.github.lithualien.projectcreator.exceptions.handler;
 
 import com.github.lithualien.projectcreator.exceptions.ResourceAlreadyExistsException;
+import com.github.lithualien.projectcreator.exceptions.ResourceIllogicalAmountException;
 import com.github.lithualien.projectcreator.exceptions.ResourceNotFoundException;
 import com.github.lithualien.projectcreator.vo.ExceptionVO;
 import org.springframework.http.HttpStatus;
@@ -17,7 +18,8 @@ import java.time.LocalDateTime;
 @RestController
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler( { ResourceNotFoundException.class, ResourceAlreadyExistsException.class } )
+    @ExceptionHandler( { ResourceNotFoundException.class, ResourceAlreadyExistsException.class,
+            ResourceIllogicalAmountException.class} )
     public final ResponseEntity<ExceptionVO> handleBadRequestExceptions(Exception exception, WebRequest webRequest) {
         return new ResponseEntity<>(getExceptionVO(exception.getMessage(), HttpStatus.BAD_REQUEST.value(),
                 webRequest.getDescription(false)), HttpStatus.BAD_REQUEST);

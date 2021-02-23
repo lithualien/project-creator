@@ -21,7 +21,7 @@ public class Group extends BaseModel {
     @JoinColumn(name = "project_id")
     private Project project;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(name = "project_group_students",
             joinColumns = @JoinColumn(name = "project_group_id"),
             inverseJoinColumns = @JoinColumn(name = "student_id"))
