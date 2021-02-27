@@ -17,11 +17,4 @@ public class GroupName extends BaseModel {
         this.groupName = groupName;
     }
 
-    @Override
-    public String toString() {
-        return "GroupName{" +
-                "id=" + id +
-                ", groupName='" + groupName + '\'' +
-                '}';
-    }
 }

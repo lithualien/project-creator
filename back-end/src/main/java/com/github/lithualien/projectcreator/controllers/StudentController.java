@@ -42,4 +42,16 @@ public class StudentController {
         return new ResponseEntity<>(null, HttpStatus.ACCEPTED);
     }
 
+    @PostMapping("/{studentId}/groups/{groupId}")
+    public ResponseEntity<?> addStudentToGroup(@PathVariable Long studentId, @PathVariable Long groupId) {
+        studentService.addStudentToGroup(studentId, groupId);
+        return new ResponseEntity<>(null, HttpStatus.ACCEPTED);
+    }
+
+    @DeleteMapping("/{studentId}/groups/{groupId}")
+    public ResponseEntity<?> removeStudentToGroup(@PathVariable Long studentId, @PathVariable Long groupId) {
+        studentService.removeStudentFromGroup(studentId, groupId);
+        return new ResponseEntity<>(null, HttpStatus.ACCEPTED);
+    }
+
 }

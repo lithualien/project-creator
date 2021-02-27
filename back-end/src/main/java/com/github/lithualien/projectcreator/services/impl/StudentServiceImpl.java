@@ -1,9 +1,12 @@
 package com.github.lithualien.projectcreator.services.impl;
 
 import com.github.lithualien.projectcreator.exceptions.ResourceAlreadyExistsException;
+import com.github.lithualien.projectcreator.exceptions.ResourceIllogicalAmountException;
 import com.github.lithualien.projectcreator.exceptions.ResourceNotFoundException;
+import com.github.lithualien.projectcreator.models.Group;
 import com.github.lithualien.projectcreator.models.Student;
 import com.github.lithualien.projectcreator.repositories.StudentRepository;
+import com.github.lithualien.projectcreator.services.GroupService;
 import com.github.lithualien.projectcreator.services.StudentService;
 import com.github.lithualien.projectcreator.vo.StudentVO;
 import lombok.extern.log4j.Log4j2;
@@ -21,24 +24,24 @@ public class StudentServiceImpl implements StudentService {
     private final StudentRepository studentRepository;
     private final Converter<Student, StudentVO> modelToVo;
     private final Converter<StudentVO, Student> voToModel;
+    private final GroupService groupService;
 
     public StudentServiceImpl(StudentRepository studentRepository, Converter<Student, StudentVO> modelToVo,
-                              Converter<StudentVO, Student> voToModel) {
+                              Converter<StudentVO, Student> voToModel, GroupService groupService) {
         this.studentRepository = studentRepository;
         this.modelToVo = modelToVo;
         this.voToModel = voToModel;
+        this.groupService = groupService;
     }
 
     @Override
     public List<StudentVO> all() {
-        List<Student> studentList = getStudentList(studentRepository.findAll());
-        return getStudentVoList(studentList);
+        return getStudentVoList(getStudentList(studentRepository.findAll()));
     }
 
     @Override
     public StudentVO findById(Long id) {
-        Student student = getStudentById(id);
-        return modelToVo.convert(student);
+        return modelToVo.convert(getStudentById(id));
     }
 
     @Override
@@ -56,7 +59,38 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public void delete(Long id) {
         Student student = getStudentById(id);
-        studentRepository.delete(student);
+        groupService.removeStudent(student.getGroupList(), student);
+        studentRepository.delete(getStudentById(id));
+    }
+
+    @Override
+    public void addStudentToGroup(Long studentId, Long groupId) {
+        Student student = getStudentById(studentId);
+        Group group = groupService.getGroupById(groupId);
+        checkIfStudentLimitReached(group);
+
+        List<Group> groupList = groupService.getGroupByProjectId(group.getProject().getId());
+        checkIfStudentAlreadyEnrolled(groupList, student);
+
+        groupService.addStudentToGroup(group, student);
+
+    }
+
+    @Override
+    public void removeStudentFromGroup(Long studentId, Long groupId) {
+        Student student = getStudentById(studentId);
+        Group group = groupService.getGroupById(groupId);
+        checkIfStudentNotEnrolled(groupId, studentId);
+        groupService.removeStudent(group, student);
+    }
+
+    public Student getStudentById(Long id) {
+        return studentRepository
+                .findById(id)
+                .<ResourceNotFoundException> orElseThrow(() -> {
+                    log.error("Student with id = " + id + " was not found!");
+                    throw new ResourceNotFoundException("Student with id = " + id + " was not found!");
+                });
     }
 
     private List<Student> getStudentList(Iterable<Student> students) {
@@ -70,15 +104,6 @@ public class StudentServiceImpl implements StudentService {
                 .stream()
                 .map(modelToVo::convert)
                 .collect(Collectors.toList());
-    }
-
-    private Student getStudentById(Long id) {
-        return studentRepository
-                .findById(id)
-                .<ResourceNotFoundException> orElseThrow(() -> {
-                    log.error("Student with id = " + id + " was not found!");
-                    throw new ResourceNotFoundException("Student with id = " + id + " was not found!");
-                });
     }
 
     private void checkIfStudentExists(String firstName, String lastName) {
@@ -106,4 +131,31 @@ public class StudentServiceImpl implements StudentService {
         }
     }
 
+    private void checkIfStudentLimitReached(Group group) {
+        if(group.getStudentList().size() >= group.getProject().getStudentsPerGroup()) {
+            log.error("Maximum student amount per group has been reached.");
+            throw new ResourceIllogicalAmountException("Maximum student amount per group has been reached.");
+        }
+    }
+
+    private void checkIfStudentAlreadyEnrolled(List<Group> groupList, Student student) {
+        groupList
+                .forEach(group -> checkIfStudentEnrolled(group.getId(), student.getId()));
+    }
+
+    private void checkIfStudentEnrolled(Long groupId, Long studentId) {
+        if(isStudentInGroup(groupId, studentId)) {
+            throw new ResourceAlreadyExistsException("Student already enrolled in a project.");
+        }
+    }
+
+    private void checkIfStudentNotEnrolled(Long groupId, Long studentId) {
+        if(!isStudentInGroup(groupId, studentId)) {
+            throw new ResourceNotFoundException("Student is not in the group!");
+        }
+    }
+
+    private Boolean isStudentInGroup(Long groupId, Long studentId) {
+        return studentRepository.existsStudentInProject(groupId, studentId);
+    }
 }

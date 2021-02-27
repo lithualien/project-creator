@@ -14,4 +14,7 @@ public interface ProjectRepository extends CrudRepository<Project, Long> {
     @Query(value = "SELECT group_amount FROM projects WHERE id = :id", nativeQuery = true)
     Integer findProjectGroupAmountById(Long id);
 
+    @Query(value = "SELECT student_amount_per_group FROM projects WHERE id = :id", nativeQuery = true)
+    Integer findProjectStudentPerGroupById(Long id);
+
 }

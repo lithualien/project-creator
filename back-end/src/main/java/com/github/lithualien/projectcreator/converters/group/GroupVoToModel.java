@@ -14,7 +14,7 @@ public class GroupVoToModel implements Converter<GroupVO, Group> {
         Group group = new Group();
         group.setId(groupVO.getId());
         group.setGroupName(createGroupName(groupVO.getGroupName()));
-        group.setStudents(null);
+        group.setStudentList(null);
         return group;
     }
 

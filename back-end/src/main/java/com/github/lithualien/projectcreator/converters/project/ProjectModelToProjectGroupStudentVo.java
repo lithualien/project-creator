@@ -26,9 +26,9 @@ public class ProjectModelToProjectGroupStudentVo implements Converter<Project, P
         return projectGroupStudentVO;
     }
 
-    private List<GroupStudentVO> convertGroupModelToVo(List<Group> groupSet) {
-        if(groupSet != null) {
-            return groupSet
+    private List<GroupStudentVO> convertGroupModelToVo(List<Group> groupList) {
+        if(groupList != null) {
+            return groupList
                     .stream()
                     .map(group -> new GroupModelToGroupStudentVo()
                             .convert(group))

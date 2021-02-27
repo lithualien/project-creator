@@ -19,7 +19,7 @@ public class GroupModelToGroupStudentVo implements Converter<Group, GroupStudent
 
         groupStudentVO.setId(group.getId());
         groupStudentVO.setGroupName(group.getGroupName().getGroupName());
-        groupStudentVO.setStudentVoSet(convertStudentToVoSet(group.getStudents()));
+        groupStudentVO.setStudentVoSet(convertStudentToVoSet(group.getStudentList()));
 
         return groupStudentVO;
     }

@@ -22,7 +22,7 @@ public class Project extends BaseModel {
     @Column(name = "group_amount")
     private Integer groupAmount;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Group> groups = new ArrayList<>();
 
     public Project(Long id, String projectName, Integer studentsPerGroup, Integer groupAmount) {
@@ -32,14 +32,4 @@ public class Project extends BaseModel {
         this.groupAmount = groupAmount;
     }
 
-    @Override
-    public String toString() {
-        return "Project{" +
-                "id=" + id +
-                ", projectName='" + projectName + '\'' +
-                ", studentsPerGroup=" + studentsPerGroup +
-                ", groupAmount=" + groupAmount +
-                ", groups=" + groups +
-                '}';
-    }
 }

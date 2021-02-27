@@ -1,6 +1,7 @@
 package com.github.lithualien.projectcreator.services.impl;
 
 import com.github.lithualien.projectcreator.exceptions.ResourceAlreadyExistsException;
+import com.github.lithualien.projectcreator.exceptions.ResourceIllogicalAmountException;
 import com.github.lithualien.projectcreator.exceptions.ResourceNotFoundException;
 import com.github.lithualien.projectcreator.models.Group;
 import com.github.lithualien.projectcreator.models.Project;
@@ -14,51 +15,51 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-@Log4j2
 @Service
+@Log4j2
 public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final GroupService groupService;
     private final Converter<Project, ProjectGroupStudentVO> modelToVo;
     private final Converter<ProjectVO, Project> projectVoToModel;
-    private final GroupService groupService;
 
-    public ProjectServiceImpl(ProjectRepository projectRepository, Converter<Project, ProjectGroupStudentVO> modelToVo,
-                              Converter<ProjectVO, Project> projectVoToModel, GroupService groupService) {
+    public ProjectServiceImpl(ProjectRepository projectRepository, GroupService groupService, Converter<Project, ProjectGroupStudentVO> modelToVo,
+                              Converter<ProjectVO, Project> projectVoToModel) {
         this.projectRepository = projectRepository;
+        this.groupService = groupService;
         this.modelToVo = modelToVo;
         this.projectVoToModel = projectVoToModel;
-        this.groupService = groupService;
     }
 
     @Override
-    public List<ProjectGroupStudentVO> all() {
-        List<Project> projectGroupStudentVO = getProjectList(projectRepository.findAll());
-        return convertModelToVo(projectGroupStudentVO);
+    public List<? extends ProjectVO> all() {
+        return convertModelToVo(getProjectList(projectRepository.findAll()));
     }
 
     @Override
-    public ProjectGroupStudentVO findById(Long id) {
+    public ProjectVO findById(Long id) {
         return modelToVo.convert(getProjectById(id));
     }
 
-    @Transactional
     @Override
-    public ProjectGroupStudentVO save(ProjectVO projectVO) {
+    public ProjectVO save(ProjectVO projectVO) {
         checkIfProjectExists(projectVO.getProjectName());
-        projectVO.setId(null);
+        checkGroupAmount(projectVO.getGroupAmount());
+        checkStudentsPerGroupAmount(projectVO.getStudentsPerGroup());
 
-        Project project = projectVoToModel.convert(projectVO);
-        Project savedProject = saveOrUpdate(project);
-
-        if(savedProject != null) {
-            savedProject.setGroups(groupService.initializeGroupList(savedProject));
-            return modelToVo.convert(savedProject);
+        if(isConversionToModelNull(projectVO)) {
+            Project project = saveOrUpdate(projectVoToModel.convert(projectVO), null);
+            project.setGroups(getGroupList(project));
+            return modelToVo.convert(project);
         }
+
+        log.error(getClass() + " in save method the conversion was null");
         return null;
     }
 
@@ -66,26 +67,26 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ProjectVO update(Long id, ProjectVO projectVO) {
         checkIfProjectExists(id);
-        projectVO.setId(id);
-        Project oldProject = getProjectById(id);
-        Project project = projectVoToModel.convert(projectVO);
-        List<Group> groups = groupService.createOrDeleteGroups(oldProject, projectVO.getGroupAmount());
-        groupService.resetStudentsOnGroup(groups, oldProject.getStudentsPerGroup(),
-                projectVO.getStudentsPerGroup());
+        checkGroupAmount(projectVO.getGroupAmount());
+        checkStudentsPerGroupAmount(projectVO.getStudentsPerGroup());
 
-        if(project != null) {
-            Project updatedProject = saveOrUpdate(project);
-            updatedProject.setGroups(groups);
-            return modelToVo.convert(updatedProject);
+        Project oldProject = getProjectById(id);
+        checkIfStudentsPerGroupChanged(projectVO.getStudentsPerGroup(), oldProject);
+        List<Group> groupList = updateGroupList(projectVO.getGroupAmount(), oldProject);
+
+        if(isConversionToModelNull(projectVO)) {
+            Project project = saveOrUpdate(projectVoToModel.convert(projectVO), id);
+            project.setGroups(groupList);
+            return modelToVo.convert(project);
         }
 
+        log.error(getClass() + " in update method the conversion was null");
         return null;
     }
 
     @Override
     public void delete(Long id) {
-        Project project = getProjectById(id);
-        projectRepository.delete(project);
+        projectRepository.delete(getProjectById(id));
     }
 
     private List<Project> getProjectList(Iterable<Project> projectIterator) {
@@ -110,6 +111,60 @@ public class ProjectServiceImpl implements ProjectService {
                 });
     }
 
+    private List<Group> getGroupList(Project project) {
+        List<Group> groupList = new ArrayList<>();
+
+        for(int i = 1; i <= project.getGroupAmount(); i++) {
+            groupList.add(groupService.initializeDefaultGroup(project, i));
+        }
+
+        return groupList;
+    }
+
+    private List<Group> getGroupListToAdd(Integer endIteration, Project oldProject) {
+        List<Group> groupList = new ArrayList<>();
+
+        for(int i = oldProject.getGroupAmount(); i < endIteration; i++) {
+            groupService.initializeDefaultGroup(oldProject, i + 1);
+        }
+
+        return groupList;
+    }
+
+    private List<Group> getGroupListToRemove(Integer endIteration, Project oldProject) {
+        List<Group> groupList = new ArrayList<>();
+
+        for(int i = oldProject.getGroupAmount(); i > endIteration; i--) {
+            groupService.removeGroupFromProject(oldProject.getGroups().get(i - 1));
+            groupList.add(oldProject.getGroups().get(i - 1));
+        }
+
+        return  groupList;
+    }
+
+    private Project saveOrUpdate(Project project, Long id) {
+        project.setId(id);
+        return projectRepository.save(project);
+    }
+
+    private List<Group> updateGroupList(Integer newAmount, Project oldProject) {
+        List<Group> groupList = oldProject.getGroups();
+
+        if(isOldAmountGreater(newAmount, oldProject.getGroupAmount()) == null) {
+            return groupList;
+        }
+
+        if(isOldAmountGreater(newAmount, oldProject.getGroupAmount())) {
+            groupList.removeAll(getGroupListToRemove(newAmount, oldProject));
+        }
+
+        if(!isOldAmountGreater(newAmount, oldProject.getGroupAmount())) {
+            groupList.addAll(getGroupListToAdd(newAmount, oldProject));
+        }
+
+        return groupList;
+    }
+
     private void checkIfProjectExists(String projectName) {
         if(projectRepository.existsProjectByProjectName(projectName)) {
             log.error("Project with name " + projectName + " already exists.");
@@ -123,13 +178,54 @@ public class ProjectServiceImpl implements ProjectService {
         }
     }
 
-    private Project saveOrUpdate(Project project) {
-        if(project != null) {
-            return projectRepository.save(project);
-        } else {
-            log.error(getClass() + ", saveOrUpdate() method, project after conversion was null.");
-            return null;
+    private void checkGroupAmount(Integer groupAmount) {
+        if(groupAmount < 1) {
+            log.error("Group amount can not be lower than 1.");
+            throw new ResourceIllogicalAmountException("Group amount can not be lower than 1.");
         }
+
+        if(groupAmount > 20) {
+            log.error("Maximum number of group is 20.");
+            throw new ResourceIllogicalAmountException("Maximum number of group is 20.");
+        }
+    }
+
+    private void checkStudentsPerGroupAmount(Integer studentsPerGroup) {
+        if(studentsPerGroup < 2) {
+            log.error("Students per group can not be lower than 2.");
+            throw new ResourceIllogicalAmountException("Students per group can not be lower than 2.");
+        }
+
+        if(studentsPerGroup > 10) {
+            log.error("Maximum number of students per group is 10.");
+            throw new ResourceIllogicalAmountException("Maximum number of students per group is 10.");
+        }
+    }
+
+    private void checkIfStudentsPerGroupChanged(Integer newAmount, Project oldProject) {
+        if(isStudentPerGroupDifferent(newAmount, oldProject.getStudentsPerGroup())) {
+            groupService.resetStudents(oldProject);
+        }
+    }
+
+    private Boolean isConversionToModelNull(ProjectVO projectVO) {
+        return projectVoToModel.convert(projectVO) != null;
+    }
+
+    private Boolean isOldAmountGreater(Integer newAmount, Integer oldAmount) {
+        if(oldAmount > newAmount) {
+            return true;
+        }
+
+        if(oldAmount < newAmount) {
+            return  false;
+        }
+
+        return null;
+    }
+
+    private Boolean isStudentPerGroupDifferent(Integer newAmount, Integer oldAmount) {
+        return !oldAmount.equals(newAmount);
     }
 
 }

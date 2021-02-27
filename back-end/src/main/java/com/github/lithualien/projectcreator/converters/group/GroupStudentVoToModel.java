@@ -17,7 +17,7 @@ public class GroupStudentVoToModel implements Converter<GroupStudentVO, Group> {
     @Override
     public Group convert(GroupStudentVO groupStudentVO) {
         Group group = convertGroupVoToModel(groupStudentVO);
-        group.setStudents(convertStudentVoSetToModel(groupStudentVO.getStudentVoSet()));
+        group.setStudentList(convertStudentVoSetToModel(groupStudentVO.getStudentVoSet()));
         return group;
     }
 

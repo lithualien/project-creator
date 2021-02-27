@@ -2,9 +2,11 @@ package com.github.lithualien.projectcreator.services.impl;
 
 import com.github.lithualien.projectcreator.exceptions.ResourceAlreadyExistsException;
 import com.github.lithualien.projectcreator.exceptions.ResourceNotFoundException;
+import com.github.lithualien.projectcreator.models.Group;
 import com.github.lithualien.projectcreator.models.GroupName;
 import com.github.lithualien.projectcreator.repositories.GroupNameRepository;
 import com.github.lithualien.projectcreator.services.GroupNameService;
+import com.github.lithualien.projectcreator.services.GroupService;
 import com.github.lithualien.projectcreator.vo.GroupNameVO;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.core.convert.converter.Converter;
@@ -20,11 +22,14 @@ public class GroupNameServiceImpl implements GroupNameService {
     private final GroupNameRepository groupNameRepository;
     private final Converter<GroupName, GroupNameVO> modelToVo;
     private final Converter<GroupNameVO, GroupName> voToModel;
+    private final GroupService groupService;
 
-    public GroupNameServiceImpl(GroupNameRepository groupNameRepository, Converter<GroupName, GroupNameVO> modelToVo, Converter<GroupNameVO, GroupName> voToModel) {
+    public GroupNameServiceImpl(GroupNameRepository groupNameRepository, Converter<GroupName, GroupNameVO> modelToVo,
+                                Converter<GroupNameVO, GroupName> voToModel, GroupService groupService) {
         this.groupNameRepository = groupNameRepository;
         this.modelToVo = modelToVo;
         this.voToModel = voToModel;
+        this.groupService = groupService;
     }
 
     @Override
@@ -68,8 +73,20 @@ public class GroupNameServiceImpl implements GroupNameService {
 
     @Override
     public GroupName saveByGroupName(String groupName) {
-        GroupName groupNameObj = new GroupName(groupName);
-        return groupNameRepository.save(groupNameObj);
+         try {
+             checkIfGroupExists(groupName);
+             GroupName groupNameObj = new GroupName(groupName);
+             return groupNameRepository.save(groupNameObj);
+         } catch (ResourceAlreadyExistsException ex) {
+             return findGroupNameByGroupName(groupName);
+         }
+    }
+
+    @Override
+    public void updateGroupName(Long groupId, GroupNameVO groupNameVO) {
+        GroupName groupName = saveByGroupName(groupNameVO.getGroupName());
+        Group group = groupService.getGroupById(groupId);
+        groupService.updateGroupName(group, groupName);
     }
 
     private List<GroupName> getGroupNameSet(Iterable<GroupName> groupNameIterable) {
