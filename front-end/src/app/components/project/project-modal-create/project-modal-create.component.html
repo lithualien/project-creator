@@ -1,0 +1,75 @@
+<div class="modal-header">  
+    <h4 *ngIf="save" class="modal-title">Project creation form</h4>
+    <h4 *ngIf="!save" class="modal-title"> Project update form</h4>
+    <button *ngIf="!creatingInProgress" type="button" class="close" aria-label="Close" (click)="close()">x</button>
+</div>
+<form [formGroup]="getForm()" (ngSubmit)="submitForm()">
+    <div class="modal-body">
+        <div class="container" *ngIf="!creatingInProgress && !created">
+            <!-- Error messages -->
+
+            <div class="alert alert-danger" role="alert" *ngIf="!save">
+                Important!!! Changing student amount will remove all students from the project!!!
+            </div>
+
+
+            <div class="alert alert-danger" role="alert" *ngIf="errorMessage !== ''">
+                {{ errorMessage }}
+            </div>
+
+            <div class="alert alert-danger" role="alert" *ngIf="getProjectNameMessage() !== ''">
+                {{ getProjectNameMessage() }}
+            </div>
+
+            <div class="alert alert-danger" role="alert" *ngIf="getMessageForGroupAmount() !== ''">
+                {{ getMessageForGroupAmount() }}
+            </div>
+
+            <div class="alert alert-danger" role="alert" *ngIf="getMessageForStudentAmount() !== ''">
+                {{ getMessageForStudentAmount() }}
+            </div>
+
+            <div class="form-group">
+                <label for="projectName">Project Name</label>
+                <input type="text" class="form-control" formControlName="projectName" />
+            </div>
+            <div class="form-group">
+                <label for="groupAmount">Amount of Groups</label>
+                <input type="number" min="1" max="20" class="form-control" formControlName="groupAmount">
+            </div>
+            <div class="form-group">
+                <label for="studentsPerGroup">Students per Group</label>
+                <input type="number" min="2" max="10" class="form-control" formControlName="studentsPerGroup">
+            </div>
+        </div>
+
+        <!-- Loading circle -->
+        <div *ngIf="creatingInProgress" class="text-center pt-3">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <span class="fi-circle-check"></span>
+            <p class="pt-2" *ngIf="save">Thank you for creating a project! Currently the system is working really hard to create your wonderful project! It might take a moment or two, but we will make sure to inform you as soon as project is created!</p>
+            <p class="pt-2" *ngIf="!save">Our system is calculating and refactoring the project by your desicred settings! It will not take long, stay tight!</p>        </div>
+
+        <div *ngIf="created && save">
+            <div class="alert alert-success text-center" role="alert">
+                Project was successfully created!
+            </div>
+            <p>Your wonderful project has been created! You can visit the project page by clicking here!</p>
+        </div>
+
+        <div *ngIf="created && !save">
+            <div class="alert alert-success text-center" role="alert">
+                Project was successfully updated!
+            </div>
+            <p>Your outstanding project has been update! You can visit the project page by clicking here!</p>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <button *ngIf="!creatingInProgress && !created && save" class="btn btn-success" [disabled]="!getForm().valid">Submit Project</button>
+        <button *ngIf="!creatingInProgress && !created && !save" class="btn btn-success" [disabled]="!getForm().valid">Submit Project</button>
+        <button class="btn btn-primary" *ngIf="!creatingInProgress" type="button" (click)="close()">Close</button>
+    </div>
+</form>

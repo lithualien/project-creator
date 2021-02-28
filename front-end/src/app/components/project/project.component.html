@@ -1,0 +1,39 @@
+<div class="col-12 col-sm-12 col-md-12 col-lg-12 p-0">
+
+    <!-- Loading circle -->
+    <div *ngIf="getLoading()" class="text-center pt-3">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+
+    <!-- If content is fetched from db -->
+    <div *ngIf="!getLoading()">
+        <!-- Load if there is at least one project -->
+        <div *ngIf="!isProjectArrayEmpty()">
+            <div class="text-center pt-3 pb-3">
+                <h3>Did not find desired project?</h3>
+                <p>Do not hesitate, click below and add a new one!</p>
+                <button class="btn btn-blue" (click)="openCreateModal()">Create a project</button>
+            </div>
+
+            <h3 class="text-center">List of our awesome projects:</h3>
+            <div class="row">
+                <div class="col-4 col-sm-4 col-md-4 col-lg-4 pr-2 pb-2" *ngFor="let project of getProjectArray(); let i = index">
+                    <app-project-card (updateIndex)="handleUpdateClick($event)" (deleteIndex)="handleDeleteClick($event)" [project]="project" [index]="i"></app-project-card>
+                </div>
+            </div>
+        </div>
+
+        <!-- Load if there are no projects avible -->
+        <div *ngIf="isProjectArrayEmpty()">
+            <div class="text-center pt-3 pb-3">
+                <h3>Sadly there are no projects created</h3>
+                <p>But you could be the first one!</p>
+                <button class="btn btn-primary" (click)="openCreateModal()">Create a project</button>
+            </div>
+        </div>
+
+    </div>
+
+</div>

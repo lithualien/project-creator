@@ -1,0 +1,11 @@
+<div class="card">
+    <div class="card-header">
+        {{ project.projectName }}
+      </div>
+    <div class="card-body">
+        <p class="card-text">Groups in the project: {{ project.groupAmount }}</p>
+        <p class="card-text">Students per group: {{ project.studentsPerGroup }}</p>
+        <button class="btn btn-light-blue card-link" (click)="onClickUpdate(index)">Update</button>
+        <button class="btn btn-danger card-link" (click)="onClickDelete(index)">Delete</button>
+    </div>
+</div>
