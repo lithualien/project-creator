@@ -7,7 +7,8 @@
     <modules>
         <module>back-end</module>
 		<module>front-end</module>
-	</modules>
+        <module>front-end</module>
+    </modules>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>

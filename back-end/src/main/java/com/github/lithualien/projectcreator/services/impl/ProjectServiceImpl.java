@@ -26,15 +26,17 @@ public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
     private final GroupService groupService;
-    private final Converter<Project, ProjectGroupStudentVO> modelToVo;
+    private final Converter<Project, ProjectGroupStudentVO> modelToProjectGroupStudentVo;
     private final Converter<ProjectVO, Project> projectVoToModel;
+    private final Converter<Project, ProjectVO> modelToVo;
 
-    public ProjectServiceImpl(ProjectRepository projectRepository, GroupService groupService, Converter<Project, ProjectGroupStudentVO> modelToVo,
-                              Converter<ProjectVO, Project> projectVoToModel) {
+    public ProjectServiceImpl(ProjectRepository projectRepository, GroupService groupService, Converter<Project, ProjectGroupStudentVO> modelToProjectGroupStudentVo,
+                              Converter<ProjectVO, Project> projectVoToModel, Converter<Project, ProjectVO> modelToVo) {
         this.projectRepository = projectRepository;
         this.groupService = groupService;
-        this.modelToVo = modelToVo;
+        this.modelToProjectGroupStudentVo = modelToProjectGroupStudentVo;
         this.projectVoToModel = projectVoToModel;
+        this.modelToVo = modelToVo;
     }
 
     @Override
@@ -44,7 +46,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public ProjectVO findById(Long id) {
-        return modelToVo.convert(getProjectById(id));
+        return modelToProjectGroupStudentVo.convert(getProjectById(id));
     }
 
     @Override
@@ -77,7 +79,7 @@ public class ProjectServiceImpl implements ProjectService {
         if(isConversionToModelNull(projectVO)) {
             Project project = saveOrUpdate(projectVoToModel.convert(projectVO), id);
             project.setGroups(groupList);
-            return modelToVo.convert(project);
+            return modelToProjectGroupStudentVo.convert(project);
         }
 
         log.error(getClass() + " in update method the conversion was null");
@@ -95,7 +97,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .collect(Collectors.toList());
     }
 
-    private List<ProjectGroupStudentVO> convertModelToVo(List<Project> projectList) {
+    private List<ProjectVO> convertModelToVo(List<Project> projectList) {
         return projectList
                 .stream()
                 .map(modelToVo::convert)
