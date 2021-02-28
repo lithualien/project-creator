@@ -26,7 +26,6 @@ export class ProjectCardComponent implements OnInit {
   }
 
   public onClickUpdate(index: number): void {
-    console.log("child index: " + index);
     this.updateIndex.emit(index);
   }
 

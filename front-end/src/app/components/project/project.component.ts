@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, EventEmitter, OnInit } from '@angular/core';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { Component, ComponentFactoryResolver, EventEmitter, OnInit } from '@angular/core';
+import { NgbModal, NgbModalConfig, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModalStack } from '@ng-bootstrap/ng-bootstrap/modal/modal-stack';
 import { ApiError } from 'src/app/models/error.model';
 import { Project } from 'src/app/models/project.model';
 import { ProjectService } from 'src/app/services/project/project.service';
@@ -129,10 +130,28 @@ export class ProjectComponent implements OnInit {
 
   }
 
-  handleDeleteClick(index: number): void {  
+  public handleDeleteClick(index: number): void {  
     const modalRef: NgbModalRef = this.createModal();
-    let id: number = this.projectArray[index].id;
-    
+    let project: Project = this.projectArray[index];
+    this.initializeForDelete(modalRef, project);
+
+    modalRef.componentInstance.submittedProject.subscribe((result: Project) => {
+      if(result !== undefined) {
+        modalRef.componentInstance.deleteInProgress = true;
+        this.projectService.deleteProject(result.id).subscribe(() => {
+          this.projectArray.splice(index, 1);
+          modalRef.componentInstance.deleteInProgress = false;
+          modalRef.componentInstance.deleteSuccessful = true;
+        },
+        ((apiError: HttpErrorResponse) => {
+          modalRef.componentInstance.deleteSuccessful = false;
+        }));
+      }
+    });
+
+    modalRef.closed.subscribe(() => {
+      this.resetModaRef(modalRef);
+    })
 
   }
 
@@ -148,6 +167,9 @@ export class ProjectComponent implements OnInit {
     modalRef.componentInstance.created = this.getCreated();
     modalRef.componentInstance.newProject = null;
     modalRef.componentInstance.errorMessage = '';
+    modalRef.componentInstance.delete = false;
+    modalRef.componentInstance.deleteInProgress = false;
+    modalRef.componentInstance.deleteSuccessful = false;
   }
 
   private setOnGoodResult(modalRef: NgbModalRef, newProject: Project): void {
@@ -174,6 +196,16 @@ export class ProjectComponent implements OnInit {
     modalRef.componentInstance.project = project;
     modalRef.componentInstance.created = this.getCreated();
     modalRef.componentInstance.save = this.save;
+  }
+
+  private initializeForDelete(modalRef: NgbModalRef, project: Project): void {
+    modalRef.componentInstance.creatingInProgress = false;
+    modalRef.componentInstance.created = false;
+    modalRef.componentInstance.errorMessage = '';
+    modalRef.componentInstance.project = project;
+    modalRef.componentInstance.newProject = null;
+    modalRef.componentInstance.save = false;
+    modalRef.componentInstance.delete = true;
   }
 
 }

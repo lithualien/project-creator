@@ -15,7 +15,7 @@ export class ProjectModalCreateComponent implements OnInit {
   public creatingInProgress!: boolean;
 
   @Input('created') 
-  public created!: boolean;
+  public created: boolean = false;
 
   @Input('errorMessage') 
   public errorMessage: string = '';
@@ -26,8 +26,17 @@ export class ProjectModalCreateComponent implements OnInit {
   @Input('newProject') 
   public newProject!: Project;
 
-  @Input("save") 
-  public save!: boolean;
+  @Input('save') 
+  public save: boolean = false;
+
+  @Input('delete')
+  public delete: boolean = false;
+
+  @Input('deleteInProgress')
+  public deleteInProgress: boolean = false;
+
+  @Input('deleteSuccessful')
+  public deleteSuccessful: boolean = false;
   
   @Output('submittedProject') 
   public submittedProject: EventEmitter<Project> = new EventEmitter();
