@@ -12,6 +12,9 @@ export class GroupComponent implements OnInit {
   @Input('group')
   public group!: Group;
 
+  @Input('studentPerGroup')
+  public studentPerGroup!: number;
+
   constructor() {  }
 
   ngOnInit(): void {
@@ -23,6 +26,10 @@ export class GroupComponent implements OnInit {
 
   public isStudentListEmpty(): boolean {
     return this.getStudentArray().length < 1;
+  }
+
+  public isStudentListFull(): boolean {
+    return this.getStudentArray().length === this.studentPerGroup;
   }
 
   public onDelete(student: Student) {
