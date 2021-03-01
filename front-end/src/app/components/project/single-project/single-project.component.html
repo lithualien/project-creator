@@ -1,0 +1,77 @@
+<ng-template #managegroup let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title">Create Student</h4>
+        <button *ngIf="!getUploadInProgress()" type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <form [formGroup]="getFormGroup()" (ngSubmit)="submitForm()">
+        <div class="modal-body">
+            <div class="container" *ngIf="!getUploadInProgress()">
+
+                <div class="alert alert-danger" role="alert" *ngIf="getErrorMessage() !== ''">
+                    {{ getErrorMessage() }}
+                </div>
+
+                <div *ngIf="getUploadFinished()">
+                    <div class="alert alert-success" role="alert">
+                        Successfully uploaded student to the database!
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <select class="form-control" formControlName="groupName">
+                        <option *ngFor="let group of getGroupArray()" [ngValue]="group">{{ group.groupName }}</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select class="form-control" formControlName="student">
+                        <option *ngFor="let student of getStudentArray()" [ngValue]="student">{{ student.firstName + " "
+                            + student.lastName }}</option>
+                    </select>
+                </div>
+            </div>
+            <div *ngIf="getUploadInProgress()">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+                <span class="fi-circle-check"></span>
+                <p class="pt-2">Adding new talent to the database!</p>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button *ngIf="!getUploadInProgress()" class="btn btn-blue" [disabled]="!getFormGroup().valid">Submit
+                Group</button>
+            <button type="button" class="btn btn-light" (click)="modal.close()">Close</button>
+        </div>
+    </form>
+</ng-template>
+
+<!-- Loading circle -->
+<div *ngIf="getLoadingGroups() && getLoadingStudents()" class="text-center pt-3">
+    <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+</div>
+
+<div *ngIf="!getLoadingGroups() && !getLoadingStudents()">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 pt-2">
+                <div class="text-center">
+                    <h1 class="text-center">{{ "Project (" + getProjectWithGroup().projectName + ")" }}</h1>
+                    <p>Manage the group structure</p>
+                    <button type="button" class="btn btn-blue" aria-label="manage"
+                        (click)="loadGroupManagement(managegroup)">Manage groups</button>
+                </div>
+
+                <div class="row">
+                    <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 pt-2" *ngFor="let group of getGroupArray()">
+                        <app-group [group]="group"></app-group>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

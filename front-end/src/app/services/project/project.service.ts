@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
-import { ApiPath } from '../../enums/ApiPath';
+import { environment } from 'src/environments/environment';
+import { ApiPath } from 'src/app/enums/ApiPath';
 import { ProjectGroup } from 'src/app/models/project-group.model';
 import { Project } from 'src/app/models/project.model';
 

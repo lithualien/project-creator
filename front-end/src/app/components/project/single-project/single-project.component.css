@@ -1,0 +1,17 @@
+.btn.btn-blue {
+    background-color: #08204C;
+    color: white;
+}
+
+.alert.alert-danger {
+    background-color: #ED1B24;
+    text-align: center;
+    color: white;
+    font-weight: bold;
+}
+
+.alert.alert-success {
+    background-color: #1D8344;
+    color: white;
+    font-weight: bold;
+}

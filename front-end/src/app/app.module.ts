@@ -9,6 +9,10 @@ import { ProjectCardComponent } from './components/project/project-card/project-
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ProjectModalCreateComponent } from './components/project/project-modal-create/project-modal-create.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SingleProjectComponent } from './components/project/single-project/single-project.component';
+import { GroupComponent } from './components/group/group.component';
+import { StudentComponent } from './components/student/student.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -16,6 +20,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     NavbarComponent,
     ProjectCardComponent,
     ProjectModalCreateComponent,
+    SingleProjectComponent,
+    GroupComponent,
+    StudentComponent,
   ],
   imports: [
     BrowserModule,
