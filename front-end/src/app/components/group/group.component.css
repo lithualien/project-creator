@@ -1,0 +1,30 @@
+.card {
+    border-color: #BCC8D8;
+    border-width: 3px;
+    border-style: solid;
+    border-radius: 5px;
+}
+
+.card-header {
+    position: relative;
+    width: 100%;
+    border-radius: 0px;
+    background-color: #BCC8D8;
+}
+
+th {
+    border-width: 0px;
+}
+
+.delete {
+    color: #ED1B24;
+}
+
+button.delete {
+    background-color: Transparent;
+    background-repeat:no-repeat;
+    border: none;
+    cursor:pointer;
+    overflow: hidden;
+    outline:none;
+}

@@ -1,0 +1,138 @@
+<!-- perkelti į atskirą komponentą visą modal ir pažiūrėti ar gali būti pernaudotas -->
+<ng-template #studentdeletemodal let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title">Confirm Delete</h4>
+        <button *ngIf="!getDeleteInProgress()" type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+
+        <div *ngIf="!getDeleteInProgress() && !getDeleteFinished()">
+            <div class="alert alert-danger" role="alert">
+                Removing student is irrevertible!
+            </div>
+            <p>Please confirm delete action by clicking the button below.</p>
+        </div>
+
+        <div *ngIf="getDeleteInProgress()">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <span class="fi-circle-check"></span>
+            <p class="pt-2">We are currently deleting a student from the list...</p>
+        </div>
+
+        <div *ngIf="getDeleteFinished()">
+            <div class="aler aler-success" role="alert">
+                Successfully removed the student!
+            </div>
+            <p></p>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <button *ngIf="!getDeleteInProgress() && !getDeleteFinished()" type="button" class="btn btn-danger"
+            (click)="deleteElement()">Delete Student</button>
+        <button type="button" class="btn btn-light" (click)="modal.close()">Close</button>
+    </div>
+</ng-template>
+
+<ng-template #studentaddmodal let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title">Create Student</h4>
+        <button *ngIf="!getUploadInProgress()" type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <form [formGroup]="getFormGroup()" (ngSubmit)="submitForm()">
+        <div class="modal-body">
+
+            <div *ngIf="!getUploadInProgress()">
+
+                <div class="alert alert-danger" role="alert" *ngIf="getErrorMessage() !== ''">
+                    {{ getErrorMessage() }}
+                </div>
+
+                <div *ngIf="getUploadFinished()">
+                    <div class="alert alert-success" role="alert">
+                        Successfully uploaded student to the database!
+                    </div>
+                </div>
+
+                <div class="alert alert-danger" role="alert"
+                    *ngIf="getFormErrorMessage('First name', 'firstName') !== ''">
+                    {{ getFormErrorMessage('First name', 'firstName') }}
+                </div>
+
+                <div class="alert alert-danger" role="alert"
+                    *ngIf="getFormErrorMessage('Last name', 'lastName') !== ''">
+                    {{ getFormErrorMessage('Last name', 'lastName') }}
+                </div>
+
+                <div class="form-group">
+                    <label for="firstName">First name</label>
+                    <input type="text" class="form-control" formControlName="firstName" />
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last name</label>
+                    <input type="text" class="form-control" formControlName="lastName" />
+                </div>
+            </div>
+
+            <div *ngIf="getUploadInProgress()">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+                <span class="fi-circle-check"></span>
+                <p class="pt-2">Adding new talent to the database!</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button *ngIf="!getUploadInProgress()" class="btn btn-blue"
+                [disabled]="!getFormGroup().valid">Submit Student</button>
+            <button type="button" class="btn btn-light" (click)="modal.close()">Close</button>
+        </div>
+    </form>
+</ng-template>
+
+<!-- Loading circle -->
+<div *ngIf="getLoading()" class="text-center pt-3">
+    <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+</div>
+
+<div *ngIf="!getLoading()">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 pt-2">
+                <div *ngIf="isEmpty()" class="text-center">
+                    <h1>Sorry</h1>
+                    <p>But the list is empty!</p>
+                    <button type="button" class="btn btn-blue text-center" aria-label="add"
+                        (click)="newStudent(studentaddmodal)">Add new student</button>
+                </div>
+                <div *ngIf="!isEmpty()">
+                    <div class="text-center pb-2">
+                        <h1>Did not find the student?</h1>
+                        <p>Add a new student by clicking button below!</p>
+                        <button type="button" class="btn btn-blue" aria-label="add"
+                            (click)="newStudent(studentaddmodal)">Add new student</button>
+                    </div>
+
+                    <table class="table pb-2">
+                        <tbody>
+                            <tr *ngFor="let student of getStudentArray(); let i = index">
+                                <th width="45%" scrop="row">{{ student.firstName }}</th>
+                                <th width="45%"> {{ student.lastName }} </th>
+                                <th width="10%"><button type="button" class="delete" aria-label="delete"
+                                        (click)="confirm(studentdeletemodal, i)">x</button></th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
