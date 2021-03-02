@@ -84,6 +84,9 @@ export class StudentComponent implements OnInit {
   }
 
   public isEmpty(): boolean {
+    if(this.studentArray === undefined) {
+      return false;
+    }
     return this.studentArray.length < 1
   }
 
@@ -125,7 +128,7 @@ export class StudentComponent implements OnInit {
     });
   }
 
-  public getFormErrorMessage(beggining: string, field: string): string {
+  public getFormErrorMessage(beginning: string, field: string): string {
     let control: any = this.form.get(field);
 
     if(!control?.touched) {
@@ -133,15 +136,15 @@ export class StudentComponent implements OnInit {
     }
 
     if(control?.hasError('required')) {
-      return beggining + " field is required!"
+      return beginning + " field is required!"
     }
 
     if(control?.hasError('minlength')) {
-      return beggining + " is a bit too short, it should contain at least 4 symbols!";
+      return beginning + " is a bit too short, it should contain at least 4 symbols!";
     }
 
     if(control?.hasError('maxlength')) {
-      return beggining + ' is a bit too long, it should contain no more than 250 symbols!';
+      return beginning + ' is a bit too long, it should contain no more than 250 symbols!';
     }
 
     return '';

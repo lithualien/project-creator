@@ -1,6 +1,6 @@
 <ng-template #managegroup let-modal>
     <div class="modal-header">
-        <h4 class="modal-title">Create Student</h4>
+        <h4 class="modal-title">Add student to group</h4>
         <button *ngIf="!getUploadInProgress()" type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
             <span aria-hidden="true">&times;</span>
         </button>
@@ -15,7 +15,7 @@
 
                 <div *ngIf="getUploadFinished()">
                     <div class="alert alert-success" role="alert">
-                        Successfully uploaded student to the database!
+                        Successfully added student to the group!
                     </div>
                 </div>
 
@@ -36,7 +36,7 @@
                     <span class="sr-only">Loading...</span>
                 </div>
                 <span class="fi-circle-check"></span>
-                <p class="pt-2">Adding new talent to the database!</p>
+                <p class="pt-2">Adding a talent to the group!</p>
             </div>
         </div>
 

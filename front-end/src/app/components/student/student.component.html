@@ -10,7 +10,7 @@
 
         <div *ngIf="!getDeleteInProgress() && !getDeleteFinished()">
             <div class="alert alert-danger" role="alert">
-                Removing student is irrevertible!
+                Removing student is irreversible!
             </div>
             <p>Please confirm delete action by clicking the button below.</p>
         </div>
@@ -24,7 +24,7 @@
         </div>
 
         <div *ngIf="getDeleteFinished()">
-            <div class="aler aler-success" role="alert">
+            <div class="alert alert-success" role="alert">
                 Successfully removed the student!
             </div>
             <p></p>
@@ -108,7 +108,7 @@
         <div class="row">
             <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 pt-2">
                 <div *ngIf="isEmpty()" class="text-center">
-                    <h1>Sorry</h1>
+                    <h1>Sorry..</h1>
                     <p>But the list is empty!</p>
                     <button type="button" class="btn btn-blue text-center" aria-label="add"
                         (click)="newStudent(studentaddmodal)">Add new student</button>

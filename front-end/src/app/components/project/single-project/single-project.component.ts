@@ -29,7 +29,7 @@ export class SingleProjectComponent implements OnInit {
   public errMessage: string = '';
 
   constructor(
-    private route: ActivatedRoute, 
+    private route: ActivatedRoute,
     private service: ProjectService,
     private studentService: StudentService,
     private modalService: NgbModal
@@ -38,7 +38,7 @@ export class SingleProjectComponent implements OnInit {
   ngOnInit(): void {
     this.projectId = this.route.snapshot.params['id'];
     this.initializeGroups();
-    this.initializestudents();
+    this.initializeStudents();
     this.setFormGroup();
   }
 
@@ -51,7 +51,7 @@ export class SingleProjectComponent implements OnInit {
     });
   }
 
-  private initializestudents() {
+  private initializeStudents() {
     this.loadingStudents = true;
     this.studentService.getStudentArray().subscribe((result: Array<Student>) => {
         this.studentArray = result;
@@ -107,16 +107,16 @@ export class SingleProjectComponent implements OnInit {
   }
 
   public submitForm(): void {
-    let groupname: Group = this.form.value['groupName'];
+    let groupName: Group = this.form.value['groupName'];
     let student: Student = this.form.value['student'];
 
     this.uploadInProgress = true;
     this.errMessage = '';
 
-    this.studentService.postStudentGroup(student.id, groupname.id).subscribe(() => {
+    this.studentService.postStudentGroup(student.id, groupName.id).subscribe(() => {
       this.uploadInProgress = false;
       this.uploadFinished = true;
-      let index: number = this.getGroupArray().indexOf(groupname);
+      let index: number = this.getGroupArray().indexOf(groupName);
       this.getGroupArray()[index].students.push(student);
       this.setFormGroup();
     }, (error: HttpErrorResponse) => {

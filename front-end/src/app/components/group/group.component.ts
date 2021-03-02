@@ -25,15 +25,32 @@ export class GroupComponent implements OnInit {
   }
 
   public isStudentListEmpty(): boolean {
+    if(this.isUndefined(this.getStudentArray.length)) {
+      return false;
+    }
+
     return this.getStudentArray().length < 1;
   }
 
   public isStudentListFull(): boolean {
+
+    if(this.isUndefined(this.getStudentArray.length)) {
+      return false;
+     }
+
+     if(this.isUndefined(this.getStudentArray)) {
+      return false;
+     }
+
     return this.getStudentArray().length === this.studentPerGroup;
   }
 
   public onDelete(student: Student) {
     console.log(student);
   }
+
+  public isUndefined(object: any): boolean {
+    return object === undefined;
+   }
 
 }
